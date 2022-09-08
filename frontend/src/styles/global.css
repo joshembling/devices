@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+ul,
+p {
+    margin: 1rem 0;
+}
+
+ul {
+    list-style: inside;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+h2 {
+    font-size: 2.25rem;
+    font-weight: 600;
+}
+h3 {
+    font-size: 2rem;
+    font-weight: 600;
+}
+h4 {
+    font-size: 1.75rem;
+    font-weight: 600;
+}
+h5 {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+h6 {
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+p {
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.container-xl {
+    max-width: 2000px;
+    margin: auto;
+    padding: 1rem;
+    position: relative;
+}
+
+table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+table input,
+table textarea {
+    width: 100%;
+    border: none;
+    outline: none;
+    background-color: rgba(0, 0, 0, 0) !important;
+}
+
+table input:focus,
+table textarea:focus {
+    background: #fff !important;
+    color: #111 !important;
+    outline: #111 !important;
+    border: 1px solid #111 !important;
+}
