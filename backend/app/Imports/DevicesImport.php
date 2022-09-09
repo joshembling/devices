@@ -4,20 +4,17 @@ namespace App\Imports;
 
 use App\Models\Device;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 
-class DevicesImport implements ToModel
+class DevicesImport implements ToModel, WithHeadingRow, WithChunkReading, ShouldQueue
 {
-    protected $fileName;
-    protected $import_id;
-    public function  __construct($import_id)
+    protected $import_id = 1;
+
+    public function __construct($import_id)
     {
         $this->import_id = $import_id;
-    }
-
-    public function fromFile(string $fileName)
-    {
-        $this->fileName = $fileName;
-        return $this;
     }
 
     /**
@@ -28,19 +25,23 @@ class DevicesImport implements ToModel
     public function model(array $row)
     {
         return new Device([
-            'import_id' => $this->import_id,
-            'name' => $row[0],
-            'address' => $row[1],
-            'longitude' => $row[2],
-            'latitude' => $row[3],
-            'device_type' => $row[4],
-            'manufacturer' => $row[5],
-            'model' => $row[6],
-            'install_date' => $row[7],
-            'notes' => $row[8],
-            'eui' => $row[9],
-            'serial_number' => $row[10],
-            'file_name' => $this->fileName
+            'name' => $row['name'],
+            'address' => $row['address'],
+            'longitude' => $row['longitude'],
+            'latitude' => $row['latitude'],
+            'device_type' => $row['device_type'],
+            'manufacturer' => $row['manufacturer'],
+            'model' => $row['model'],
+            'install_date' => $row['install_date'],
+            'notes' => $row['notes'],
+            'eui' => $row['eui'],
+            'serial_number' => $row['serial_number'],
+            'import_id' => $this->import_id
         ]);
+    }
+
+    public function chunkSize(): int
+    {
+        return 500;
     }
 }

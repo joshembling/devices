@@ -15,7 +15,7 @@ h5,
 h6,
 ul,
 p {
-    margin: 1rem 0;
+    margin: 0 0 1rem;
 }
 
 ul {
@@ -79,8 +79,13 @@ table textarea:focus {
     border: 1px solid #111 !important;
 }
 
-table td {
-    height: 8rem;
+table:not(.example) td {
+    /* height: 8rem; */
+}
+
+table.example td {
+    height: 3rem;
+    padding: 0 0.75rem;
 }
 
 table td span {
@@ -88,11 +93,12 @@ table td span {
     white-space: nowrap;
     overflow: hidden;
     height: 100%;
+    display: flex;
 }
 
-input,
-textarea {
-    height: 100%;
+table input,
+table textarea {
+    /* height: 100%; */
 }
 
 textarea {
@@ -103,4 +109,11 @@ textarea {
 
 button:disabled {
     opacity: 0.2;
+}
+
+code {
+    background: #868686;
+    color: #fff;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.95rem;
 }

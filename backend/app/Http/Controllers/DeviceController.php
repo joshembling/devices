@@ -104,19 +104,9 @@ class DeviceController extends Controller
         $request->validate([
             'selectedFile' => 'required'
         ]);
-        $import = Excel::import(new DevicesImport, request()->file('selectedFile'));
-        // Excel::store(new DevicesImport, $request->file('selectedFile')->getClientOriginalName());
 
-        $selected =    $request->file('selectedFile');
+        Log::info(print_r($request->import_id, true));
 
-        $request->file('selectedFile')->store('storage');
-
-        // Storage::put('/csv/' . $request->file('selectedFile')->getClientOriginalName(), $request->selectedFile);
-        // Storage::put('/csv/' . $request->selectedFile, $request->file('selectedFile')->getClientOriginalName());
-        // work on this
-        // Log::info(print_r($import, true));
-
-        // return Log::info($request);
-        // return $import->store('/public/', 'test');
+        Excel::import(new DevicesImport($request->import_id), request()->file('selectedFile'));
     }
 }
