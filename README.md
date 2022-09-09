@@ -4,6 +4,8 @@ This is a Laravel backend/Next.js frontend project to create, read, update, dele
 
 ### Start servers
 
+Firstly run, `composer install` from the backend directory and `npm install` on the frontend directory to successfully grab all packages.
+
 To start the backend server, from the root directory `cd backend` and then `php artisan serve` - this must run on `localhost:8000`.
 
 To start the frontend server, from the root directory `cd frontend` and then `npm run dev` - this must run on `localhost:3000`.
@@ -23,9 +25,9 @@ Documentation for all endpoints available at `http://localhost:8000/request-docs
 ### Final rundown:
 
 - <strong>JSON API built in Laravel</strong>
-  - Authentication for POST, PUT, DELETE routes using Sanctum
-  - User cannot do anything other than make GET requests if they are not registered and logged in.
-  - Validation on POST and PUT endpoints.
+  - Authentication for `POST`, `PUT`, `DELETE` routes using Sanctum
+  - User cannot do anything other than make `GET` requests if they are not registered and logged in.
+  - Validation on `POST` and `PUT` endpoints.
   - Queue job on all CSV imports to prevent any overloading.
 - <strong>Consumed in React using Next.js</strong>
   - Tabular view for all data (example, real and import).

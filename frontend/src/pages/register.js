@@ -12,7 +12,7 @@ import { useState } from 'react'
 const Register = () => {
     const { register } = useAuth({
         middleware: 'guest',
-        redirectIfAuthenticated: '/dashboard',
+        redirectIfAuthenticated: '/',
     })
 
     const [name, setName] = useState('')
@@ -24,7 +24,13 @@ const Register = () => {
     const submitForm = event => {
         event.preventDefault()
 
-        register({ name, email, password, password_confirmation: passwordConfirmation, setErrors })
+        register({
+            name,
+            email,
+            password,
+            password_confirmation: passwordConfirmation,
+            setErrors,
+        })
     }
 
     return (
@@ -37,7 +43,6 @@ const Register = () => {
                         </a>
                     </Link>
                 }>
-
                 <form onSubmit={submitForm}>
                     {/* Name */}
                     <div>
@@ -86,7 +91,10 @@ const Register = () => {
                             autoComplete="new-password"
                         />
 
-                        <InputError messages={errors.password} className="mt-2" />
+                        <InputError
+                            messages={errors.password}
+                            className="mt-2"
+                        />
                     </div>
 
                     {/* Confirm Password */}
@@ -106,7 +114,10 @@ const Register = () => {
                             required
                         />
 
-                        <InputError messages={errors.password_confirmation} className="mt-2" />
+                        <InputError
+                            messages={errors.password_confirmation}
+                            className="mt-2"
+                        />
                     </div>
 
                     <div className="flex items-center justify-end mt-4">

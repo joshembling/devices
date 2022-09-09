@@ -17,6 +17,7 @@ const importCSV = () => {
     const [showConfirm, setShowConfirm] = useState(false)
     const [importData, setImportData] = useState(false)
     const [successMsg, setSuccessMsg] = useState('')
+    const [errorMsg, setErrorMsg] = useState('')
 
     const handleSelect = e => {
         setSelectedFile(e.target.files[0])
@@ -60,11 +61,18 @@ const importCSV = () => {
                 setSuccessMsg('Data Uploaded Successfully!')
                 setPreview([])
                 setShowConfirm(false)
+                setErrorMsg('')
                 fileInput.current.value = null
             }
         } catch (error) {
             if (error.response) {
                 console.log(error.response)
+                setErrorMsg(
+                    error.response.status +
+                        ': ' +
+                        error.response.data.message +
+                        ' Please check the console.',
+                )
             } else {
                 console.log(error)
             }
@@ -117,10 +125,22 @@ const importCSV = () => {
                                 <Button
                                     noMargin={true}
                                     text="No"
-                                    onClick={() => setImportData(false)}
+                                    onClick={() => {
+                                        setImportData(false)
+                                        setPreview(false)
+                                        setShowConfirm(false)
+                                        setErrorMsg('')
+                                        fileInput.current.value = null
+                                    }}
                                 />
                             </div>
                         </div>
+                    )}
+
+                    {errorMsg && (
+                        <p className="flex justify-center text-red-500">
+                            {errorMsg}
+                        </p>
                     )}
 
                     {preview.length && (
