@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Device;
+use Illuminate\Http\Request;
+use App\Imports\DevicesImport;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreDeviceRequest;
 use App\Http\Requests\UpdateDeviceRequest;
-use App\Models\Device;
 
 class DeviceController extends Controller
 {
@@ -15,7 +20,7 @@ class DeviceController extends Controller
      */
     public function index()
     {
-        return Device::paginate(50);
+        return Device::paginate(25);
     }
 
     /**
@@ -36,7 +41,7 @@ class DeviceController extends Controller
             'device_type' => $required_255_chars,
             'manufacturer' => $required_255_chars,
             'model' => $required_255_chars,
-            'install_date' => 'required|date_format:Y-m-d',
+            'install_date' => 'required',
             'notes' => 'nullable',
             'eui' => $required_255_chars,
             'serial_number' => 'required|unique:devices|max:255',
@@ -92,5 +97,26 @@ class DeviceController extends Controller
     public function search($name)
     {
         return Device::where('name', 'like', '%' . $name . '%')->paginate(50);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'selectedFile' => 'required'
+        ]);
+        $import = Excel::import(new DevicesImport, request()->file('selectedFile'));
+        // Excel::store(new DevicesImport, $request->file('selectedFile')->getClientOriginalName());
+
+        $selected =    $request->file('selectedFile');
+
+        $request->file('selectedFile')->store('storage');
+
+        // Storage::put('/csv/' . $request->file('selectedFile')->getClientOriginalName(), $request->selectedFile);
+        // Storage::put('/csv/' . $request->selectedFile, $request->file('selectedFile')->getClientOriginalName());
+        // work on this
+        // Log::info(print_r($import, true));
+
+        // return Log::info($request);
+        // return $import->store('/public/', 'test');
     }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import axios from '@/lib/axios'
 import Head from 'next/head'
 import Link from 'next/link'
@@ -15,7 +15,10 @@ export default function Home() {
     const [status, setStatus] = useState(false)
     const [postedData, setPostedData] = useState({})
     const [errors, setErrors] = useState([])
+    const [selectedFile, setSelectedFile] = useState(false)
     const url = `http://localhost:8000/api/devices?page=${page}`
+
+    const deviceHeading = useRef(null)
 
     // get all devices
     useEffect(() => {
@@ -42,14 +45,11 @@ export default function Home() {
     const handleUpdateDevice = async e => {
         const rowId = e.target.parentElement.parentElement.id
 
-        console.log(e.target.id)
-
         await axios
             .put(`http://localhost:8000/api/devices/${rowId}`, {
                 [e.target.id]: e.target.value,
             })
             .then(({ data }) => {
-                console.log(data)
                 setStatus(true)
             })
             .catch(({ response }) => {
@@ -68,21 +68,22 @@ export default function Home() {
         e.preventDefault()
         const id = e.target.value
 
-        await axios
-            .delete(`http://localhost:8000/api/devices/${id}`, {
-                id: id,
-            })
-            .then(({ data }) => {
-                console.log(data)
-                setStatus(true)
-            })
-            .catch(({ response }) => {
-                if (response.status === 422) {
-                    console.log(response.data.errors)
-                } else {
-                    console.log('error')
-                }
-            })
+        if (confirm('Are you sure you want to delete this?')) {
+            await axios
+                .delete(`http://localhost:8000/api/devices/${id}`, {
+                    id: id,
+                })
+                .then(({ data }) => {
+                    setStatus(true)
+                })
+                .catch(({ response }) => {
+                    if (response.status === 422) {
+                        console.log(response.data.errors)
+                    } else {
+                        console.log('error')
+                    }
+                })
+        }
 
         setStatus(false)
     }
@@ -103,7 +104,6 @@ export default function Home() {
         axios
             .post(`http://localhost:8000/api/devices/`, postedData)
             .then(({ data }) => {
-                console.log(data)
                 setStatus(true)
                 setErrors(false)
             })
@@ -112,7 +112,24 @@ export default function Home() {
             })
     }, [postedData])
 
-    console.log(errors)
+    const handleFileUpload = async e => {
+        e.preventDefault()
+
+        const formData = new FormData()
+        formData.append('selectedFile', selectedFile)
+        try {
+            const response = await axios({
+                method: 'post',
+                url: 'http://localhost:8000/api/import',
+                data: formData,
+                headers: { 'Content-Type': 'multipart/form-data' },
+            })
+
+            console.log(response)
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     return (
         <>
@@ -120,7 +137,17 @@ export default function Home() {
                 <title>Laravel</title>
             </Head>
 
-            <div className="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center sm:pt-0">
+            <form onSubmit={handleFileUpload}>
+                <input
+                    type="file"
+                    name="file"
+                    id="file"
+                    onChange={e => setSelectedFile(e.target.files[0])}
+                />
+                <button type="submit">Submit</button>
+            </form>
+
+            <div className="relative bg-gray-100 dark:bg-gray-900 sm:pt-0">
                 <div className="hidden fixed top-0 right-0 px-6 py-4 sm:block">
                     {user ? (
                         <>
@@ -153,13 +180,18 @@ export default function Home() {
                 <main className="container-xl">
                     {user !== undefined && Object.keys(user).length !== 0 ? (
                         <>
-                            <h2>Welcome {user.name}!</h2>
-                            <section className="intro mb-10">
-                                <h5>Quick instructions:</h5>
+                            <h3>Hey {user.name}!</h3>
+                            <section className="intro mt-8 mb-10">
+                                <h5>Get started:</h5>
                                 <ul>
                                     <li>
-                                        To post a new device, use the button
-                                        below, or click here.
+                                        To add a single device{' '}
+                                        <a
+                                            href="#addDevice"
+                                            className="text-gray-700 underline">
+                                            click here
+                                        </a>
+                                        .
                                     </li>
                                     <li>
                                         To edit a device, click on the field
@@ -205,7 +237,7 @@ export default function Home() {
                         'loading'
                     ) : (
                         <>
-                            <h4>Current device list:</h4>
+                            <h4 ref={deviceHeading}>Current device list:</h4>
                             {devices ? (
                                 <div className="overflow-x-auto table-container">
                                     <table className="text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
@@ -237,19 +269,18 @@ export default function Home() {
                                                         id={device.id}>
                                                         {deviceKeys.map(
                                                             (key, i) => (
-                                                                <>
+                                                                <td key={i}>
                                                                     {user ? (
-                                                                        <td
-                                                                            key={
-                                                                                i
-                                                                            }>
+                                                                        <span>
                                                                             {i <=
                                                                             1 ? (
                                                                                 device[
                                                                                     key
                                                                                 ]
                                                                             ) : i ===
-                                                                              10 ? (
+                                                                                  3 ||
+                                                                              i ===
+                                                                                  10 ? (
                                                                                 <textarea
                                                                                     onBlur={
                                                                                         handleUpdateDevice
@@ -260,39 +291,54 @@ export default function Home() {
                                                                                         ]
                                                                                     }></textarea>
                                                                             ) : (
-                                                                                <input
-                                                                                    type="text"
-                                                                                    id={
-                                                                                        key
-                                                                                    }
-                                                                                    onBlur={
-                                                                                        handleUpdateDevice
-                                                                                    }
-                                                                                    defaultValue={
+                                                                                <>
+                                                                                    <input
+                                                                                        type="text"
+                                                                                        id={
+                                                                                            key
+                                                                                        }
+                                                                                        onBlur={
+                                                                                            handleUpdateDevice
+                                                                                        }
+                                                                                        defaultValue={
+                                                                                            device[
+                                                                                                key
+                                                                                            ]
+                                                                                        }
+                                                                                        key={
+                                                                                            device[
+                                                                                                key
+                                                                                            ]
+                                                                                        }
+                                                                                    />
+                                                                                </>
+                                                                            )}
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="py-3 px-2">
+                                                                            {i ===
+                                                                                3 ||
+                                                                            i ===
+                                                                                10 ? (
+                                                                                device[
+                                                                                    key
+                                                                                ].substr(
+                                                                                    0,
+                                                                                    70,
+                                                                                ) +
+                                                                                '...'
+                                                                            ) : (
+                                                                                <span>
+                                                                                    {
                                                                                         device[
                                                                                             key
                                                                                         ]
                                                                                     }
-                                                                                />
+                                                                                </span>
                                                                             )}
-                                                                        </td>
-                                                                    ) : (
-                                                                        <td className="py-3 px-2">
-                                                                            {i ===
-                                                                            10
-                                                                                ? device[
-                                                                                      key
-                                                                                  ].substr(
-                                                                                      0,
-                                                                                      70,
-                                                                                  ) +
-                                                                                  '...'
-                                                                                : device[
-                                                                                      key
-                                                                                  ]}
-                                                                        </td>
+                                                                        </span>
                                                                     )}
-                                                                </>
+                                                                </td>
                                                             ),
                                                         )}
                                                         {user && (
@@ -320,11 +366,40 @@ export default function Home() {
                             )}
                         </>
                     )}
-                    <button className="my-10 text-gray-100 bg-gray-900  py-2 px-4 border border-dark-500 hover:border-transparent rounded d-block">
+
+                    <div className="mt-5 flex justify-between">
+                        <button
+                            className="mb-10 text-gray-100 bg-gray-900 py-2 px-4 border border-dark-500 hover:border-transparent rounded d-block"
+                            onClick={() =>
+                                setPage(prev => (prev === 1 ? 1 : prev - 1))
+                            }
+                            disabled={
+                                devices.current_page === 1 ? true : false
+                            }>
+                            Prev
+                        </button>
+                        <button
+                            className="mb-10 text-gray-100 bg-gray-900 py-2 px-4 border border-dark-500 hover:border-transparent rounded d-block"
+                            onClick={() => {
+                                setPage(prev => prev + 1)
+                                // deviceHeading.current.scrollIntoView()
+                            }}
+                            disabled={
+                                devices.last_page === page ? true : false
+                            }>
+                            Next
+                        </button>
+                    </div>
+
+                    <button
+                        id="#addDevice"
+                        className="mb-5 text-gray-100 bg-gray-900  py-2 px-4 border border-dark-500 hover:border-transparent rounded d-block">
                         Add device
                     </button>
 
-                    <form className="w-full max-w-lg">
+                    <form
+                        onSubmit={e => handleNewDevice(e)}
+                        className="w-full max-w-lg">
                         {deviceKeys.map((key, i) => (
                             <div key={i}>
                                 {i >= 2 && i !== 10 && (
@@ -375,8 +450,7 @@ export default function Home() {
                             <div className="md:w-1/3">
                                 <button
                                     className="mb-10 text-gray-100 bg-gray-900 py-3 px-4 border border-dark-500 hover:border-transparent rounded d-block"
-                                    type="submit"
-                                    onSubmit={e => handleNewDevice(e)}>
+                                    type="submit">
                                     Submit new device
                                 </button>
                             </div>

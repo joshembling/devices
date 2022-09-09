@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
+body {
+    scroll-behavior: smooth;
+}
+
 h1,
 h2,
 h3,
@@ -72,4 +77,30 @@ table textarea:focus {
     color: #111 !important;
     outline: #111 !important;
     border: 1px solid #111 !important;
+}
+
+table td {
+    height: 8rem;
+}
+
+table td span {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    height: 100%;
+}
+
+input,
+textarea {
+    height: 100%;
+}
+
+textarea {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+button:disabled {
+    opacity: 0.2;
 }
