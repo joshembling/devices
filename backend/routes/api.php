@@ -23,8 +23,14 @@ Route::get('/devices', [DeviceController::class, 'index']);
 Route::get('/devices/{id}', [DeviceController::class, 'show']);
 Route::get('/devices/search/{name}', [DeviceController::class, 'search']);
 
-Route::post('/devices', [DeviceController::class, 'store']);
-Route::put('/devices/{id}', [DeviceController::class, 'update']);
-Route::delete('/devices/{id}', [DeviceController::class, 'destroy']);
 
-Route::post('/import', [DeviceController::class, 'import']);
+/**
+ * PROTECTED
+ */
+Route::group(['middleware' => ['auth:sanctum']], function () {
+	Route::post('/devices', [DeviceController::class, 'store']);
+	Route::put('/devices/{id}', [DeviceController::class, 'update']);
+	Route::delete('/devices/{id}', [DeviceController::class, 'destroy']);
+	Route::get('/import', [DeviceController::class, 'import']);
+	Route::post('/import', [DeviceController::class, 'import']);
+});

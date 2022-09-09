@@ -2,11 +2,14 @@ import Button from '@/components/UI/Button'
 import Papa from 'papaparse'
 import Success from '@/components/UI/Success'
 import Link from 'next/link'
+import { useAuth } from '@/hooks/auth'
 
 import React, { useState, useEffect, useRef } from 'react'
 import axios from '@/lib/axios'
 
 const importCSV = () => {
+    const { user } = useAuth({ middleware: 'guest' })
+
     const fileInput = useRef()
     const [selectedFile, setSelectedFile] = useState(false)
     const [preview, setPreview] = useState({})
@@ -70,95 +73,105 @@ const importCSV = () => {
 
     return (
         <div className="container-md">
-            <section className="intro mt-8 mb-10 flex justify-center flex-col w-100 items-center m-auto text-center mb-10">
-                <h3>Import your CSV:</h3>
-                <ul>
-                    <li>Select your file</li>
-                    <li>Preview your upload</li>
-                    <li>Confirm the upload</li>
-                </ul>
-                <form onSubmit={handleFileUpload}>
-                    <input
-                        ref={fileInput}
-                        type="file"
-                        name="deviceFile"
-                        id="deviceFile"
-                        onChange={handleSelect}
-                    />
-                    <Button text="Submit" type="submit" />
-                </form>
-            </section>
-
-            {successMsg !== '' && (
+            {user ? (
                 <>
-                    <Success msg={successMsg} />
-                    <Link href="/">
-                        <Button text="View New Data" />
-                    </Link>
-                </>
-            )}
+                    <section className="intro mt-8 mb-10 flex justify-center flex-col w-100 items-center m-auto text-center mb-10">
+                        <h3>Import your CSV:</h3>
+                        <ul>
+                            <li>Select your file</li>
+                            <li>Preview your upload</li>
+                            <li>Confirm the upload</li>
+                        </ul>
+                        <form onSubmit={handleFileUpload}>
+                            <input
+                                ref={fileInput}
+                                type="file"
+                                name="deviceFile"
+                                id="deviceFile"
+                                onChange={handleSelect}
+                            />
+                            <Button text="Submit" type="submit" />
+                        </form>
+                    </section>
 
-            {showConfirm && (
-                <div className="flex justify-center flex-col w-100 items-center m-auto text-center mb-10">
-                    <h6 className="mb-0">Do you want to import this data?</h6>
-                    <div className="flex gap-1">
-                        <Button
-                            noMargin={true}
-                            text="Yes"
-                            onClick={handleUploadToServer}
-                        />
-                        <Button
-                            noMargin={true}
-                            text="No"
-                            onClick={() => setImportData(false)}
-                        />
-                    </div>
-                </div>
-            )}
+                    {successMsg !== '' && (
+                        <>
+                            <Success msg={successMsg} />
+                            <Link href="/">
+                                <Button text="View New Data" />
+                            </Link>
+                        </>
+                    )}
 
-            {preview.length && (
-                <>
-                    <h5>50 item preview:</h5>
-                    <div className="overflow-x-auto table-container">
-                        <table className="example text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
-                            <thead className="text-xs text-gray-100 uppercase bg-gray-900 ">
-                                <tr>
-                                    {preview[0].map((field, i) => (
-                                        <th
-                                            key={i}
-                                            scope="col"
-                                            className="py-3 px-3">
-                                            {field}
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {preview.map(
-                                    (field, i) =>
-                                        i !== 0 && (
-                                            <tr
-                                                key={i}
-                                                className="bg-white border-b dark:bg-gray-800">
-                                                <td>{field[0]}</td>
-                                                <td>{field[1]}</td>
-                                                <td>{field[2]}</td>
-                                                <td>{field[3]}</td>
-                                                <td>{field[4]}</td>
-                                                <td>{field[5]}</td>
-                                                <td>{field[6]}</td>
-                                                <td>{field[7]}</td>
-                                                <td>{field[8]}</td>
-                                                <td>{field[9]}</td>
-                                                <td>{field[10]}</td>
-                                                <td>{field[11]}</td>
-                                            </tr>
-                                        ),
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                    {showConfirm && (
+                        <div className="flex justify-center flex-col w-100 items-center m-auto text-center mb-10">
+                            <h6 className="mb-0">
+                                Do you want to import this data?
+                            </h6>
+                            <div className="flex gap-1">
+                                <Button
+                                    noMargin={true}
+                                    text="Yes"
+                                    onClick={handleUploadToServer}
+                                />
+                                <Button
+                                    noMargin={true}
+                                    text="No"
+                                    onClick={() => setImportData(false)}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {preview.length && (
+                        <>
+                            <h5>50 item preview:</h5>
+                            <div className="overflow-x-auto table-container">
+                                <table className="example text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
+                                    <thead className="text-xs text-gray-100 uppercase bg-gray-900 ">
+                                        <tr>
+                                            {preview[0].map((field, i) => (
+                                                <th
+                                                    key={i}
+                                                    scope="col"
+                                                    className="py-3 px-3">
+                                                    {field}
+                                                </th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {preview.map(
+                                            (field, i) =>
+                                                i !== 0 && (
+                                                    <tr
+                                                        key={i}
+                                                        className="bg-white border-b dark:bg-gray-800">
+                                                        <td>{field[0]}</td>
+                                                        <td>{field[1]}</td>
+                                                        <td>{field[2]}</td>
+                                                        <td>{field[3]}</td>
+                                                        <td>{field[4]}</td>
+                                                        <td>{field[5]}</td>
+                                                        <td>{field[6]}</td>
+                                                        <td>{field[7]}</td>
+                                                        <td>{field[8]}</td>
+                                                        <td>{field[9]}</td>
+                                                        <td>{field[10]}</td>
+                                                        <td>{field[11]}</td>
+                                                    </tr>
+                                                ),
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
+                    )}
                 </>
+            ) : (
+                <h3 className="flex justify-center">
+                    Please log in to start importing.
+                </h3>
             )}
         </div>
     )

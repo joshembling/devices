@@ -3,6 +3,7 @@ import axios from '@/lib/axios'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/auth'
+import { ClipLoader } from 'react-spinners'
 
 // main components
 import AddDeviceForm from '@/components/UI/AddDeviceForm'
@@ -14,14 +15,13 @@ import Button from '@/components/UI/Button'
 
 export default function Home() {
     const { user } = useAuth({ middleware: 'guest' })
-    const { logout } = useAuth()
+
     const [devices, setDevices] = useState([])
     const [deviceKeys, setDeviceKeys] = useState([])
     const [page, setPage] = useState(1)
     const [loading, setLoading] = useState(true)
     const [status, setStatus] = useState(false)
 
-    const [selectedFile, setSelectedFile] = useState(false)
     const url = `http://localhost:8000/api/devices?page=${page}`
 
     const deviceHeading = useRef(null)
@@ -57,9 +57,14 @@ export default function Home() {
 
             <div>
                 <Intro />
-
                 {loading ? (
-                    'loading'
+                    <div className="flex flex-column justify-center items-center">
+                        <ClipLoader
+                            color="black"
+                            loading={loading}
+                            size={150}
+                        />
+                    </div>
                 ) : (
                     <>
                         {devices.data.length ? (
@@ -102,7 +107,6 @@ export default function Home() {
                         )}
                     </>
                 )}
-
                 {user && (
                     <>
                         <Button

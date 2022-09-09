@@ -105,8 +105,6 @@ class DeviceController extends Controller
             'selectedFile' => 'required'
         ]);
 
-        Log::info(print_r($request->import_id, true));
-
         Excel::import(new DevicesImport($request->import_id), request()->file('selectedFile'));
     }
 }
