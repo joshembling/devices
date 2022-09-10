@@ -171,7 +171,7 @@ const importCSV = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {preview.map(
+                                        {preview.slice(0, 50).map(
                                             (field, i) =>
                                                 i !== 0 && (
                                                     <tr
