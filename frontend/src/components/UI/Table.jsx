@@ -1,18 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useAuth } from '@/hooks/auth'
 import axios from '@/lib/axios'
 
 const Table = ({ deviceKeys, devices, setStatus }) => {
     const { user } = useAuth({ middleware: 'guest' })
+    const [errorMsg, setErrorMsg] = useState('')
 
     // update
     const handleUpdateDevice = async e => {
-        console.log(e.target.parentElement)
         const rowId = e.target.parentElement.parentElement.parentElement.id
-
-        console.log({
-            [e.target.id]: e.target.value,
-        })
 
         await axios
             .put(`http://localhost:8000/api/devices/${rowId}`, {
@@ -22,7 +18,12 @@ const Table = ({ deviceKeys, devices, setStatus }) => {
                 setStatus(true)
             })
             .catch(({ response }) => {
-                console.log(response)
+                if (response) {
+                    console.log(response)
+                    alert(
+                        `Status: ${response.status}\n${response.data.message}`,
+                    )
+                }
             })
 
         setStatus(false)
@@ -33,7 +34,7 @@ const Table = ({ deviceKeys, devices, setStatus }) => {
         e.preventDefault()
         const id = e.target.value
 
-        if (confirm('Are you sure you want to delete this?')) {
+        if (confirm(`Are you sure you want to delete device ID:${id}?`)) {
             await axios
                 .delete(`http://localhost:8000/api/devices/${id}`, {
                     id: id,
@@ -90,6 +91,9 @@ const Table = ({ deviceKeys, devices, setStatus }) => {
                                                             handleUpdateDevice
                                                         }
                                                         defaultValue={
+                                                            device[key]
+                                                        }
+                                                        key={
                                                             device[key]
                                                         }></textarea>
                                                 ) : (

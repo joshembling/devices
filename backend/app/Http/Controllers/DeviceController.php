@@ -71,7 +71,20 @@ class DeviceController extends Controller
     public function update(UpdateDeviceRequest $request, Device $id)
     {
         $device = Device::find($id)->first();
-        $device->update($request->all());
+
+        $device->update($request->validate([
+            'name' => 'string',
+            'address' => 'string',
+            'longitude' => 'numeric',
+            'latitude' => 'numeric',
+            'device_type' => 'string',
+            'manufacturer' => 'string',
+            'model' => 'string',
+            'install_date' => 'string',
+            'notes' => 'string',
+            'eui' => 'string',
+            'serial_number' => 'string',
+        ]));
 
         return $device;
     }
@@ -99,12 +112,17 @@ class DeviceController extends Controller
         return Device::where('name', 'like', '%' . $name . '%')->paginate(50);
     }
 
+    /**
+     * Import the CSV file
+     *
+     */
     public function import(Request $request)
     {
         $request->validate([
             'selectedFile' => 'required'
         ]);
 
-        Excel::import(new DevicesImport($request->import_id), request()->file('selectedFile'));
+        $data = Excel::import(new DevicesImport($request->import_id), request()->file('selectedFile'));
+        Storage::disk('local')->put('/csv/' . strtotime("now") . '.csv', file_get_contents($request->selectedFile));
     }
 }

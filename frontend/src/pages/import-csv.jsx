@@ -10,7 +10,7 @@ import axios from '@/lib/axios'
 const importCSV = () => {
     const { user } = useAuth({ middleware: 'guest' })
 
-    const fileInput = useRef()
+    const fileInput = useRef(null)
     const [selectedFile, setSelectedFile] = useState(false)
     const [preview, setPreview] = useState({})
     const [showPreview, setShowPreview] = useState(true)
@@ -24,18 +24,27 @@ const importCSV = () => {
         setSuccessMsg('')
         if (e.target.files[0].size > 4e6) {
             setShowPreview(false)
+        } else {
+            setShowPreview(true)
         }
     }
 
     const handleFileUpload = async e => {
         e.preventDefault()
-        setShowConfirm(true)
-        if (selectedFile && showPreview) {
-            Papa.parse(selectedFile, {
-                complete: function (results) {
-                    setPreview(results.data)
-                },
-            })
+        if (
+            fileInput.current.value === '' ||
+            fileInput.current.value === null
+        ) {
+            alert('Choose a file first!')
+        } else {
+            setShowConfirm(true)
+            if (selectedFile && showPreview) {
+                Papa.parse(selectedFile, {
+                    complete: function (results) {
+                        setPreview(results.data)
+                    },
+                })
+            }
         }
     }
 
@@ -97,6 +106,7 @@ const importCSV = () => {
                                 name="deviceFile"
                                 id="deviceFile"
                                 onChange={handleSelect}
+                                accept=".csv,text/csv"
                             />
                             <Button text="Submit" type="submit" />
                         </form>
